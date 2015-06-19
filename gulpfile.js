@@ -1,0 +1,94 @@
+/*eslint no-sync:0*/
+'use strict';
+
+var gulp         = require('gulp'),
+	mocha        = require('gulp-mocha'),
+	_            = require('lodash');
+
+var fs   = require('fs'),
+	path = require('path');
+
+var IGNORE_ITEMS = ['node_modules', 'coverage', 'package.json'];
+
+var topLevelPaths = (function getTopLevelPaths() {
+	var items = fs.readdirSync(__dirname)
+		.filter(function (entry) {
+			return entry[0] !== '.' && IGNORE_ITEMS.indexOf(entry) < 0;
+		})
+		.filter(function (entry) {
+			return fs.statSync(path.join(__dirname, entry)).isDirectory();
+		})
+		.join(',');
+	if (items !== '') {
+		return '{' + items + '}';
+	}
+	return '{_none_}'; // no subfolders to match
+}());
+
+var config = {
+	ignore : IGNORE_ITEMS,
+	coverage : {
+		statements : 80,
+		branches   : 80,
+		functions  : 80,
+		lines      : 80
+	},
+	paths : {
+		js : [
+			'*.js',
+			topLevelPaths + '/**/*.js',
+			'!*.test.js',
+			'!**/*.test.js'
+		],
+		tests : [
+			'test/**/*.spec.js'
+		],
+		whitespace : [
+			'*.*',
+			topLevelPaths + '/**/*.*',
+			'!deploy/**/*',
+			'!bin/**/*',
+			'!schema/**/*.yaml',
+			'!package.json',
+			'!proto/package.json',
+			'!**/*.bz2',
+			'!**/*.gz'
+		]
+	}
+};
+
+function onError(e) {
+	if (e.message) {
+		console.error(e.message);
+	}
+	if (e.stack) {
+		console.log(e.stack);
+	}
+	throw e;
+}
+
+function CheckCoverage() {
+	function checkTypeCoverage(v, k) {
+		return config.coverage[k] > v.pct;
+	}
+
+	var failedCoverage = _.some(istanbul.summarizeCoverage(),
+		checkTypeCoverage);
+
+	if (failedCoverage) {
+		this.emit('error',
+			new Error('gulp-istanbul', 'Inadequate test coverage'));
+	}
+}
+
+gulp.task('mocha', function mochaTests(cb) {
+	gulp.src(config.paths.js)
+		.on('finish', function runTests() {
+			gulp.src(config.paths.tests)
+				.pipe(mocha({timeout:2000}))
+				.on('error', onError);
+		});
+});
+
+gulp.task('test', ['mocha']);
+gulp.task('default', ['test']);
