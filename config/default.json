@@ -7,6 +7,9 @@
 	},
 	"server": {
 		"port": 3000,
-		"cnam_scripts": "./scripts/cnam"
+		"scripts": {
+			"path": "./scripts/cnam",
+			"timeout": 1000
+		}
 	}
 }

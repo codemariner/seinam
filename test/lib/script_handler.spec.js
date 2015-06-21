@@ -15,9 +15,9 @@ describe('ScriptHandler', function () {
 
 	before(function (done) {
 		Bluebird.join(
-			createScriptHandler('test/scripts/cnam'),
-			createScriptHandler('test/scripts/cnam2'),
-			createScriptHandler('test/scripts/cnam3'),
+			createScriptHandler({path: 'test/scripts/cnam'}),
+			createScriptHandler({path: 'test/scripts/cnam2'}),
+			createScriptHandler({path: 'test/scripts/cnam3'}),
 			function (handler1, handler2, handler3) {
 				scriptHandler1 = handler1;
 				scriptHandler2 = handler2;
@@ -38,9 +38,9 @@ describe('ScriptHandler', function () {
 
 	it('should execute scripts and get the first output', function (done) {
 		Bluebird.all([
-			scriptHandler1.execute(),
-			scriptHandler2.execute(),
-			scriptHandler3.execute()
+			scriptHandler1.executeFirst('1234567890'),
+			scriptHandler2.executeFirst('1234567890'),
+			scriptHandler3.executeFirst('1234567890')
 		]).spread(function (output1, output2, output3) {
 			assert.equal('SCRIPT 1 OUTPUT', output1);
 			assert.equal('SCRIPT 2 OUTPUT', output2);

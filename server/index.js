@@ -8,34 +8,20 @@ var express = require('express'),
 
 var getLogger = require('../lib/logger'),
 	getResources = require('./resource-provider'),
-	pkg = require('../package');
+	pkg = require('../package'),
+	api = require('./api');
 
 var app = null,
 	resources = null,
 	logger = getLogger(pkg.name),
 	startTime = new Date().getTime();
 
-function loadApi() {
-	Bluebird.promisify(fs.readdir)(config.get('server.cnam_scripts')).then(function (list) {
-	});
-}
 
-function startApi() {
+function loadApi() {
 	var port = config.get('server.port');
 	var app = express();
 
-	// error handlers
-// 	app.configure('development', function () {
-// 		app.use(express.errorHandler({
-// 			showStack: true,
-// 			dumpExceptions: true
-// 		}));
-// 	});
-// 	app.configure('production', function () {
-// 		app.use(express.errorHandler());
-// 	});
-
-	loadApi(app);
+	app.use('/api', require('./api/phone-numbers')(resources));
 
 	app.listen(port);
 	return app;
@@ -43,9 +29,10 @@ function startApi() {
 
 
 logger.info('Starting server...');
+
 getResources(config).tap(function (resourceProvider) {
 	resources = resourceProvider;
-}).then(startApi).then(function (app) {
+}).then(loadApi).then(function (app) {
 	logger.info('API listening on port ' + config.get('server.port'));	
 	logger.info('Startup completed in ' + (new Date().getTime() - startTime) + 'ms');
 });

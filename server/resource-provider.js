@@ -10,6 +10,7 @@ var getLogger = require('../lib/logger'),
 var logger = getLogger('ResourceProvider');
 
 
+// default configuration
 var defaults = {
 	db: {
 		username: "root",
@@ -18,16 +19,19 @@ var defaults = {
 		host: "localhost",
 		port: 3306
 	},
-	cnam_scripts: 'scripts/cnam'
+	scripts: {
+		path: 'scripts/cnam',
+		timeoutMs: 1000
+	}
 }
 
 function ResourceProvider(config) {
 	this.config = {
 		db: _.defaults({}, config.db, defaults.db),
-		cnam_scripts: config.server.cnam_scripts
+		scripts: _.defaults({}, config.scripts, config.server.scripts)
 	};
 	this.mysql = null;
-	this.cnamScriptHandler = null;
+	this.scriptHandler = null;
 }
 
 ResourceProvider.prototype.load = function load() {
@@ -41,8 +45,9 @@ ResourceProvider.prototype.load = function load() {
 		this.mysql = connection;
 	});
 
-	console.log(this.config.cnam_scripts);
-	var getHandler = createScriptHandler(this.config.cnam_scripts);
+	var getHandler = createScriptHandler(this.config.scripts).bind(this).then(function (handler) {
+		this.scriptHandler = handler;
+	});
 
 	return Bluebird.join(mysqlPromise, getHandler);
 };

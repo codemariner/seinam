@@ -1,5 +1,8 @@
 {
 	"server": {
-		"cnam_scripts": "test/scripts/cnam"
+		"scripts": {
+			"path": "test/scripts/cnam",
+			"timeout": 1000
+		}
 	}
 }
