@@ -16,9 +16,7 @@ var app = null,
 	startTime = new Date().getTime();
 
 function loadApi() {
-	console.log(config.get('server.cnam_scripts'));
 	Bluebird.promisify(fs.readdir)(config.get('server.cnam_scripts')).then(function (list) {
-		console.log(list);
 	});
 }
 

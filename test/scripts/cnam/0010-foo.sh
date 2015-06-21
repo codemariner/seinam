@@ -1,3 +1,3 @@
 #!/bin/sh
 
-echo "SCOTT SAYLES"
+echo "SCRIPT 1 OUTPUT"

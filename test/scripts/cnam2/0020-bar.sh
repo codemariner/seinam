@@ -1,0 +1,1 @@
+echo "SCRIPT 2 OUTPUT"
