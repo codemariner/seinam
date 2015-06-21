@@ -4,5 +4,9 @@
 		"password": "s31n4m",
 		"database": "seinam",
 		"host": "localhost"
+	},
+	"server": {
+		"port": 3000,
+		"cnam_scripts": "./scripts/cnam"
 	}
 }

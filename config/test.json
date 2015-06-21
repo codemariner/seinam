@@ -1,0 +1,5 @@
+{
+	"server": {
+		"cnam_scripts": "test/scripts/cnam"
+	}
+}

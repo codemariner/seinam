@@ -21,6 +21,10 @@
     "gulp-util": "^3.0.5",
     "jshint": "^2.5.6"
   },
+  "scripts": {
+    "start": "node ./",
+    "test": "NODE_ENV=test node node_modules/gulp/bin/gulp.js test"
+  },
   "repository": {
     "type": "",
     "url": ""
