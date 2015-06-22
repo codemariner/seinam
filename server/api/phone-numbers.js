@@ -3,7 +3,7 @@
 var express = require('express');
 var router = express.Router();
 
-function phoneNumberLookup(resourceAdapter) {
+function phoneNumberLookup(scripts, dao) {
 	return function (req, res, next) {
 		var scripts = resourceAdapter.scriptHandler;
 		scripts.executeFirst(req.params.number).then(function (output) {
@@ -15,6 +15,6 @@ function phoneNumberLookup(resourceAdapter) {
 
 
 module.exports = function(resourceProvider) {
-	router.get('/phone_numbers/:number', phoneNumberLookup(resourceProvider));
+	router.get('/phone_numbers/:number', phoneNumberLookup(resourceProvider.scriptHandler, resourceProvider.dao));
 	return router;
 }
