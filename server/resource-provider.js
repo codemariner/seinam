@@ -5,7 +5,8 @@ var Bluebird = require('bluebird'),
 	_ = require('lodash');
 
 var getLogger = require('../lib/logger'),
-	createScriptHandler = require('../lib/script-handler');
+	createScriptHandler = require('../lib/script-handler'),
+	Dao = require('./dao');
 
 var logger = getLogger('ResourceProvider');
 
@@ -32,6 +33,7 @@ function ResourceProvider(config) {
 	};
 	this.mysql = null;
 	this.scriptHandler = null;
+	this.dao = null;
 }
 
 ResourceProvider.prototype.load = function load() {
@@ -43,6 +45,8 @@ ResourceProvider.prototype.load = function load() {
 	var mysqlPromise = connection.connectAsync().bind(this).then(function () {
 		logger.info('Connected to mysql server %s', this.config.db.host + ':' + this.config.db.port);
 		this.mysql = connection;
+	}).bind(this).tap(function () {
+		this.dao = new Dao(this.mysql);
 	});
 
 	var getHandler = createScriptHandler(this.config.scripts).bind(this).then(function (handler) {
