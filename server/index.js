@@ -21,6 +21,13 @@ function loadApi() {
 	var port = config.get('server.port');
 	var app = express();
 
+	app.use(function (req, res, next) {
+		if (!req.params.token) {
+			res.status(400).send('Unauthorized access.');
+			return next(new Error('Unauthorized access.'));
+		}
+		next();
+	});
 	app.use('/api', require('./api/phone-numbers')(resources));
 
 	app.listen(port);
