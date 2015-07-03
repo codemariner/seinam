@@ -11,5 +11,9 @@
 			"path": "./scripts/cnam",
 			"timeout": 1000
 		}
+	},
+	"phone_numbers": {
+		"valid_ttl_mins": 43200,
+		"invalid_ttl_mins": 1400
 	}
 }

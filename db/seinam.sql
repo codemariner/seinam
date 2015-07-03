@@ -75,39 +75,4 @@ FOR EACH ROW SET NEW.updated_at := now();
 
 DROP TRIGGER IF EXISTS `phone_numbers_insert`;
 DROP TRIGGER IF EXISTS `phone_numbers_update`;
-DELIMITER //
-CREATE TRIGGER `phone_numbers_insert` BEFORE INSERT ON `phone_numbers`
-   FOR EACH ROW
-   BEGIN
-	  SET NEW.updated_at := now();
-	  SET NEW.created_at := now();
-	  IF NEW.expires_at IS NULL
-	  THEN
-	     IF NEW.validated = 1
-	     THEN 
-		    SET NEW.expires_at := DATE_ADD(now(), INTERVAL 30 day);
-		 ELSE
-		    SET NEW.expires_at := DATE_ADD(now(), INTERVAL 1 day);
-		 END IF;
-	  END IF;
-   END;
-//
-DELIMITER ;
-DELIMITER //
-CREATE TRIGGER `phone_numbers_update` BEFORE UPDATE ON `phone_numbers`
-   FOR EACH ROW
-   BEGIN
-	  SET NEW.updated_at := now();
-	  IF NEW.expires_at IS NULL
-	  THEN
-	     IF NEW.validated = 1
-	     THEN 
-		    SET NEW.expires_at := DATE_ADD(now(), INTERVAL 30 day);
-		 ELSE
-		    SET NEW.expires_at := DATE_ADD(now(), INTERVAL 1 day);
-		 END IF;
-	  END IF;
-   END;
-//
-DELIMITER ;
 

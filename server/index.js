@@ -11,34 +11,20 @@ var getLogger = require('../lib/logger'),
 	pkg = require('../package'),
 	api = require('./api');
 
-var app = null,
-	resources = null,
+var getApp = require('./app'),
 	logger = getLogger(pkg.name),
 	startTime = new Date().getTime();
 
 
-function loadApi() {
-	var port = config.get('server.port');
-	var app = express();
-
-	app.use(function (req, res, next) {
-		if (!req.params.token) {
-			res.status(400).send('Unauthorized access.');
-			return next(new Error('Unauthorized access.'));
-		}
-		next();
-	});
-	app.use('/api', require('./api/phone-numbers')(resources));
-
-	app.listen(port);
-	return app;
-}
-
 
 logger.info('Starting server...');
 
-getResources(config).tap(function (resourceProvider) {
-	resources = resourceProvider;
+getResources(config).then(function (resourceProvider) {
+	var port = config.get('server.port'),
+		app = getApp(resourceProvider);
+
+	app.listen(port);
+
 }).then(loadApi).then(function (app) {
 	logger.info('API listening on port ' + config.get('server.port'));	
 	logger.info('Startup completed in ' + (new Date().getTime() - startTime) + 'ms');
