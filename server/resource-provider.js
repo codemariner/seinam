@@ -68,7 +68,10 @@ ResourceProvider.prototype.close = function close() {
 	});
 };
 
-module.exports = function (config) {
+module.exports = function (config, preLoadCallback) {
 	var resourceProvider = new ResourceProvider(config);
+	if (preLoadCallback) {
+		preLoadCallback(resourceProvider);
+	}
 	return resourceProvider.load().return(resourceProvider);
 };

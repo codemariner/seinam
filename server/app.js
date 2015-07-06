@@ -6,12 +6,22 @@ module.exports = function(resources) {
 	
 	var app = express();
 
-	app.use(function (req, res, next) {
+	// check for token
+	app.use('/api', function (req, res, next) {
 		if (!req.query.token) {
+			var error = new Error('Unauthorized access.');
 			res.status(400).send('Unauthorized access.');
-			return next(new Error('Unauthorized access.'));
+			next(error);
 		}
-		next();
+		resources.dao.findAccountByApiToken(req.query.token).then(function (account) {
+			if (account && account.active) {
+				return next();
+			}
+
+			var error = new Error('Unauthorized access.');
+			res.status(400).send('Unauthorized access.');
+			next(error);
+		});
 	});
 	app.use('/api', require('./api/phone-numbers')(resources));
 

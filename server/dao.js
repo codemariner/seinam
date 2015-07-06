@@ -13,7 +13,7 @@ function Dao(myslConn) {
 }
 
 Dao.prototype.findAccountByApiToken = function (token) {
-	return this.mysql.queryAsync('SELECT * from `customers` WHERE `api_token` = ?', token).then(function (results, fields) {
+	return this.mysql.queryAsync('SELECT * from `accounts` WHERE `api_token` = ?', token).then(function (results, fields) {
 		if (results.length && results[0].length) {
 			return results[0][0];
 		}
@@ -29,13 +29,15 @@ Dao.prototype.findPhoneNumber = function (phoneNumber) {
 }
 
 Dao.prototype.insertPhoneNumber = function (phoneNumber, displayText, validated) {
+	var date = new Date();
 	return this.mysql.queryAsync(
 		'INSERT INTO `phone_numbers` (number, display, validated, created_at, updated_at, expires_at) ' +
 		'VALUES (?, ?, ?, ?, ?, ?)',
-		[phoneNumber, displayText, !!validated, new Date(), new Date(), getExpiration(validated)]);
+		[phoneNumber, displayText, !!validated, date, date, getExpiration(date, validated)]);
 }
 
 Dao.prototype.updatePhoneNumber = function (phoneNumber, displayText, validated) {
+	var date = new Date();
 	return this.mysql.queryAsync(
 		'UPDATE `phone_numbers` SET ' +
 		' number = ?, ' +
@@ -45,10 +47,11 @@ Dao.prototype.updatePhoneNumber = function (phoneNumber, displayText, validated)
 		' updated_at = ?, ' +
 		' expires_at = ? ' +
 		' WHERE number = ?',
-		[phoneNumber, displayText, !!validated, new Date(), new Date(), getExpiration(validated), phoneNumber]);
+		[phoneNumber, displayText, !!validated, date, date, getExpiration(date, validated), phoneNumber]);
 }
 
 Dao.prototype.upsertPhoneNumber = function (phoneNumber, displayText, validated) {
+	var date = new Date();
 	return this.mysql.queryAsync(
 		'INSERT INTO `phone_numbers` (number, display, validated, created_at, updated_at, expires_at) ' +
 		'VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY update ' +
@@ -58,8 +61,8 @@ Dao.prototype.upsertPhoneNumber = function (phoneNumber, displayText, validated)
 		' created_at = ?, ' +
 		' updated_at = ?, ' +
 		' expires_at = ? ',
-		[phoneNumber, displayText, !!validated, new Date(), new Date(), getExpiration(validated),
-		 phoneNumber, displayText, !!validated, new Date(), new Date(), getExpiration(validated)]);
+		[phoneNumber, displayText, !!validated, date, date, getExpiration(date, validated),
+		 phoneNumber, displayText, !!validated, date, date, getExpiration(date, validated)]);
 }
 
 Dao.prototype.deletePhoneNumber = function (number) {
@@ -71,11 +74,24 @@ Dao.prototype._flushPhoneNumbers = function () {
 };
 
 
-function getExpiration(validated) {
+Dao.prototype.insertAccount = function (customerId, apiToken, active) {
+	var date = new Date();
+	active = !!active;
+	return this.mysql.queryAsync(
+		'INSERT INTO `accounts` (customer_id, api_token, active, created_at, updated_at) ' +
+		'VALUES (?, ?, ?, ?, ?)',
+		[customerId, apiToken, active, date, date]);
+}
+
+Dao.prototype._flushAccounts = function () {
+	return this.mysql.queryAsync('TRUNCATE TABLE accounts');
+};
+
+function getExpiration(baseDate, validated) {
 	if (validated) {
-		return moment().add(validTtlMinutes, 'minutes').toDate();
+		return moment(baseDate).add(validTtlMinutes, 'minutes').toDate();
 	}
-	return moment().add(invalidTtlMinutes, 'minutes').toDate();
+	return moment(baseDate).add(invalidTtlMinutes, 'minutes').toDate();
 }
 
 module.exports = Dao;

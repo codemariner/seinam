@@ -25,7 +25,8 @@ getResources(config).then(function (resourceProvider) {
 
 	app.listen(port);
 
-}).then(loadApi).then(function (app) {
+	return app;
+}).then(function (app) {
 	logger.info('API listening on port ' + config.get('server.port'));	
 	logger.info('Startup completed in ' + (new Date().getTime() - startTime) + 'ms');
 });
