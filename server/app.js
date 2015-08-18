@@ -9,9 +9,8 @@ module.exports = function(resources) {
 	// check for token
 	app.use('/api', function (req, res, next) {
 		if (!req.query.token) {
-			var error = new Error('Unauthorized access.');
 			res.status(400).send('Unauthorized access.');
-			next(error);
+			return;
 		}
 		resources.dao.findAccountByApiToken(req.query.token).then(function (account) {
 			if (account && account.active) {
@@ -19,9 +18,8 @@ module.exports = function(resources) {
 				return next();
 			}
 
-			var error = new Error('Unauthorized access.');
 			res.status(400).send('Unauthorized access.');
-			next(error);
+			return;
 		});
 	});
 	app.use('/api', require('./api/phone-numbers')(resources));
