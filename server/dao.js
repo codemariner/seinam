@@ -67,7 +67,7 @@ Dao.prototype.upsertPhoneNumber = function (phoneNumber, displayText, validated)
 
 Dao.prototype.deletePhoneNumber = function (number) {
 	return this.mysql.queryAsync('DELETE FROM phone_numbers WHERE number = ?', number)
-}
+};
 
 Dao.prototype._flushPhoneNumbers = function () {
 	return this.mysql.queryAsync('TRUNCATE TABLE phone_numbers');

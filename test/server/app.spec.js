@@ -125,4 +125,7 @@ describe('API', function () {
 		});
 	});
 
+	xit('should provide a way to rescan the scripts directory', function () {
+		// TODO: implement
+	});
 });

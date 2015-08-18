@@ -15,6 +15,7 @@ module.exports = function(resources) {
 		}
 		resources.dao.findAccountByApiToken(req.query.token).then(function (account) {
 			if (account && account.active) {
+				req.account = account;
 				return next();
 			}
 
