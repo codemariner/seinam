@@ -3,6 +3,7 @@
 
 var gulp         = require('gulp'),
 	mocha        = require('gulp-mocha'),
+	istanbul     = require('gulp-istanbul'),
 	_            = require('lodash');
 
 var fs   = require('fs'),
@@ -83,9 +84,13 @@ function CheckCoverage() {
 
 gulp.task('mocha', function mochaTests(cb) {
 	gulp.src(config.paths.js)
+		.pipe(istanbul())
+		.pipe(istanbul.hookRequire())
 		.on('finish', function runTests() {
 			gulp.src(config.paths.tests)
 				.pipe(mocha({timeout:2000}))
+				.pipe(istanbul.writeReports())
+				.on('end', CheckCoverage)
 				.on('error', onError);
 		});
 });
