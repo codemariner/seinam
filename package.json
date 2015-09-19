@@ -10,6 +10,7 @@
     "bluebird": "^2.9.24",
     "mysql": "^2.7.0",
 	"config": "^1.14.0",
+	"google-libphonenumber": "^1.0.6",
 	"lodash": "latest",
 	"winston": "latest",
 	"moment": "^2.10.3"

@@ -37,8 +37,8 @@ var config = {
 		js : [
 			'*.js',
 			topLevelPaths + '/**/*.js',
-			'!*.test.js',
-			'!**/*.test.js'
+			'!*.spec.js',
+			'!**/*.spec.js'
 		],
 		tests : [
 			'test/**/*.spec.js'

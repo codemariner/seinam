@@ -8,6 +8,7 @@ var express = require('express'),
 var router = express.Router();
 
 var getLogger = require('../../lib/logger'),
+	parsePhoneNumber = require('../../lib/phone-number'),
 	logger = getLogger('api-phone-numbers');
 
 function _checkExpiration(dao, phoneNumber) {
@@ -23,21 +24,40 @@ function phoneNumberLookup(scripts, dao) {
 	return function (req, res, next) {
 		if (!req.params.number) {
 			res.status(400).send({error: 'Missing number parameter.'});
+			return next();
 		}
 
-		dao.findPhoneNumber(req.params.number).then(function (result) {
+		var numberResults,
+			number;
+		try {
+			numberResults = parsePhoneNumber(req.params.number);
+		} catch (e) {
+			res.status(400).send({error: e.message});
+			return next();
+		}
+
+		// if it's international, skip for now until we support
+		// international caller id lookups
+		if (numberResults.isInternational) {
+			res.send('UNKNOWN');
+			return next();
+		}
+
+		number = numberResults.formattedNumber;
+
+		return dao.findPhoneNumber(number).then(function (result) {
 			if (!_.isEmpty(result)) {
 				res.send(result.display);
-				_checkExpiration(dao, req.params.number);
+				_checkExpiration(dao, number);
 			} else {
-				return scripts.executeFirst(req.params.number).then(function (output) {
+				return scripts.executeFirst(number).then(function (output) {
 					if (output) {
-						dao.upsertPhoneNumber(req.params.number, output, true).catch(function (err) {
+						dao.upsertPhoneNumber(number, output, true).catch(function (err) {
 							logger.error('Error occurred while upserting phone number data.', err);
 						});
 						res.send(output);
 					} else {
-						dao.upsertPhoneNumber(req.params.number, 'UNKNOWN', false).catch(function (err) {
+						dao.upsertPhoneNumber(number, 'UNKNOWN', false).catch(function (err) {
 							logger.error('Error occurred while upserting phone number data.', err);
 						});
 						res.status(404).send({error: 'No results.'});

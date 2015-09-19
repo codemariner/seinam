@@ -19,7 +19,6 @@ module.exports = function(resources) {
 			}
 
 			res.status(400).send('Unauthorized access.');
-			return;
 		});
 	});
 	app.use('/api', require('./api/phone-numbers')(resources));
