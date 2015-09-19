@@ -22,15 +22,21 @@ function _checkExpiration(dao, phoneNumber) {
 
 function phoneNumberLookup(scripts, dao) {
 	return function (req, res, next) {
-		if (!req.params.number) {
-			res.status(400).send({error: 'Missing number parameter.'});
+		var phoneNumberText = req.params.number;
+		if (phoneNumberText) {
+			phoneNumberText = phoneNumberText.trim();
+		}
+
+		if (_.isEmpty(phoneNumberText)) {
+			res.status(400).send({error: 'Missing phone number value.'});
 			return next();
 		}
 
 		var numberResults,
 			number;
 		try {
-			numberResults = parsePhoneNumber(req.params.number);
+			numberResults = parsePhoneNumber(phoneNumberText);
+			number = numberResults.formattedNumber;
 		} catch (e) {
 			res.status(400).send({error: e.message});
 			return next();
@@ -42,8 +48,6 @@ function phoneNumberLookup(scripts, dao) {
 			res.send('UNKNOWN');
 			return next();
 		}
-
-		number = numberResults.formattedNumber;
 
 		return dao.findPhoneNumber(number).then(function (result) {
 			if (!_.isEmpty(result)) {

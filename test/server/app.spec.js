@@ -54,6 +54,12 @@ describe('API', function () {
 		});
 	});
 
+	it('should require a phone number', function (done) {
+		return request(app)
+			.get('/api/phone_numbers/ ?token=cust1token')
+			.expect(400, done);
+	});
+
 	describe('For unknown numbers', function () {
 		var expiresAtMins = null,
 			scriptHandler = null;
@@ -129,6 +135,18 @@ describe('API', function () {
 			return request(app)
 				.get('/api/phone_numbers/invalidphone-number?token=cust1token')
 				.expect(400, done);
+		});
+	});
+
+	describe('For international numbers', function () {
+		it('should return a 200 response with UNKNOWN', function (done) {
+			return request(app)
+				.get('/api/phone_numbers/+011 52 123 123 1234?token=cust1token')
+				.end(function (err, res) {
+					assert.equal(res.text, 'UNKNOWN');
+					assert.equal(res.status, 200);
+					done();
+				});
 		});
 	});
 

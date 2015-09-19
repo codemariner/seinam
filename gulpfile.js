@@ -38,6 +38,7 @@ var config = {
 		js : [
 			'*.js',
 			topLevelPaths + '/**/*.js',
+			'!lib/logger.js',
 			'!*.spec.js',
 			'!**/*.spec.js'
 		],
@@ -68,20 +69,6 @@ function onError(e) {
 	throw e;
 }
 
-function CheckCoverage() {
-	function checkTypeCoverage(v, k) {
-		return config.coverage[k] > v.pct;
-	}
-
-	var failedCoverage = _.some(istanbul.summarizeCoverage(),
-		checkTypeCoverage);
-
-	if (failedCoverage) {
-		this.emit('error',
-			new Error('gulp-istanbul', 'Inadequate test coverage'));
-	}
-}
-
 gulp.task('mocha', function mochaTests(cb) {
 	gulp.src(config.paths.js)
 		.pipe(istanbul())
@@ -90,7 +77,6 @@ gulp.task('mocha', function mochaTests(cb) {
 			gulp.src(config.paths.tests)
 				.pipe(mocha({timeout:2000}))
 				.pipe(istanbul.writeReports())
-				.on('end', CheckCoverage)
 				.on('error', onError);
 		});
 });
